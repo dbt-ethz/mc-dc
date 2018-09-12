@@ -298,12 +298,13 @@ cases = [[],
  []]
 
 
-def marching_cubes_3d_single_cell(f, x, y, z):
+def marching_cubes_3d_single_cell(f, x, y, z, el):
     # Evaluate f on each vertex of the cube
+    # el (edge length) addition by mathias bernhard
     f_eval = [None] * 8
     for v in range(8):
         v_pos = VERTICES[v]
-        f_eval[v] = f(x + v_pos[0], y + v_pos[1], z + v_pos[2])
+        f_eval[v] = f(x + (v_pos[0]-0.5)*el, y + (v_pos[1]-0.5)*el, z + (v_pos[2]-0.5)*el)
     # Determine which case we are
     case = sum(2**v for v in range(8) if f_eval[v] > 0)
     # Ok, what faces do we need (in terms of edges)
@@ -316,13 +317,13 @@ def marching_cubes_3d_single_cell(f, x, y, z):
         v0, v1 = EDGES[edge]
         f0 = f_eval[v0]
         f1 = f_eval[v1]
-        t0 = 1 - adapt(f0, f1)
-        t1 = 1 - t0
+        t0 = (1 - adapt(f0, f1))
+        t1 = (1 - t0)
         vert_pos0 = VERTICES[v0]
         vert_pos1 = VERTICES[v1]
-        return V3(x + vert_pos0[0] * t0 + vert_pos1[0] * t1,
-                  y + vert_pos0[1] * t0 + vert_pos1[1] * t1,
-                  z + vert_pos0[2] * t0 + vert_pos1[2] * t1)
+        return V3(x + ((vert_pos0[0]) * t0 + (vert_pos1[0]) * t1 - 0.5) * el,
+                  y + ((vert_pos0[1]) * t0 + (vert_pos1[1]) * t1 - 0.5) * el,
+                  z + ((vert_pos0[2]) * t0 + (vert_pos1[2]) * t1 - 0.5) * el)
 
     output_verts = []
     output_tris = []
